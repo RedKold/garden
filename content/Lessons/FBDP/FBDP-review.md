@@ -1,0 +1,296 @@
+## Review
+![](https://kold.oss-cn-shanghai.aliyuncs.com/20251226212119.png)
+
+- 填空题（**概念**）
+	- 20 = `1*20`
+- 简答题（**概念与原理**）
+	- 20 = `5*4`
+- 论述题 (**分析和设计**)
+	- 60= `15*4`
+	- 最后两题 Programming
+		- MapReduce Programming
+		- Spark Programming
+			- Full Spark? or +Hive
+		- 和实验密不可分
+---
+
+
+
+- Ch. 1 Big Data
+	- **大数据背景**
+		- 科学研究的四个范式
+		- 实验科学、理论科学、计算科学、数据科学
+			- **今年不会出了**。可能填空题
+	- 什么是大数据？
+		- 不会出。
+	- 大数据的 5V 特征：
+		- Volume 大量
+		- Variety 多样
+		- Velocity 速度 
+		- Veracity 真实性
+		- Value 价值
+	- 类型
+		- 结构特征；获取和处理方式；关联特征
+	- 关键技术
+		- 构架层、系统层、算法层、应用层
+	- **金融大数据特征**
+		- 一般具有流数据特征，需要在短时间内快速处理
+		- *逻辑关系严密*
+		- *处理实时性要求高*
+		- *可展示需求强*
+
+
+- Ch. 2 并行计算和 MPI 基础编程
+	- 提高计算机性能的主要手段
+		- 提高处理器字长
+		- 摩尔定律主导
+			- *提高集成度*
+		- ILP，RISC 结构。指令级并行。流水线
+		- 摩尔定律失效，遇到瓶颈
+			- 串行计算 -> 并行计算时代
+	- 为什么需要并行计算？
+	- 并行计算的分类
+		- 按数据和指令处理结构；
+			- Flynn 分类
+			 - SISD
+				- 单指令单数据流
+				- 传统单处理器串行处理
+			- SIMD
+				- 单指令多数据流
+				- 向量机，信号处理系统
+			- MISD
+				- 多指令单数据流
+				- 很少
+			- MIMD
+				- 多指令多数据流
+				- 最常用。
+			- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20250901141635.png)
+		- 按并行类型
+			- Bit-level
+			- ILP: Instruction-Level Parallelism
+			- Thread-Level Parallelism
+				- Data-level? Task-level
+		- 按存储访问构架
+			- Shared Memory: UMA (Uniform Memory Access)
+				- 所有处理器通过总线共享内存
+			- Distributed Shared: NUMA (Non-Uniform Memory Access)
+				- 有本地，同时再共享一个
+			- Distributed Memory:
+				- 各个处理器独立存储
+		- 按系统类型
+			- MC (Multi-*Core*)
+				- Chip-level.
+			- SMP (Symmetric Multi Processing)
+				- 多个相同类型处理器通过总线连接并共享存储器
+			- MPP (Massive Parallel Processing)
+				- 内联网连接
+			- Cluster
+			- Grid
+			- Cloud
+		- 按计算特征
+			- 数据密集型（Data-Intensive Parallel Computing）
+			- 计算密集型 (Computation-Intensive Parallel Computing)
+			- 混合
+		- 按并行程序设计模型方法
+			- Shared Memory Variables
+				- 共享内存。需要引入同步控制！(`Pthread`)
+			- Message Passing
+				- **MPI**. 用消息分发
+			- **MapReduce**
+	- **主要技术问题**
+	- 如何评估程序的*可并行度* Amdahl
+		- Amdahl *定律*
+			- 一个并行程序可加速程度 *是有限制的*，并非可无限加速，并非处理器越多越好
+			- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251227193307.png)
+
+	- **MPI**特点 (Message Passing Interface)
+		- 可靠的、面向消息的通信
+		- 是一种规范。
+		- 独立于语言的编程规范，可移植性好
+	- MPI **通信机制**
+		- **点对点通信** Point-point communication
+			- 同步、异步
+		- **节点集合通信** Collective communication
+			- 有 MapReduce 的雏形-reduce 方法
+		- **用户自定义的复合数据类型传输**
+	- MPI 并行程序设计接口
+		- 了解一下
+		- `MPI_Init`, All MPI program should start with it
+		- `MPI_Finalize`, All MPI program should end with it
+		- `MPI_Comm_Size`: 确定指定范围内处理器/进程数目
+		- `MPI_Comm_Rank(comm, rank)`: 确定一个处理器/进程的标识号
+		- `MPI_Send(buf, count, datatype, dest, tag, comm)`: 发送一个消息
+		- `MPI_Recv(buf, count, datatype, source, tag, comm, status)`: 接受消息
+			- rank: 指定进程的 id
+	- MPI 的不足
+		- **抽象层度不高**
+		- **用户开发负担重**
+
+- Ch. 3 MapReduce
+	- **基本模型**
+		- 分而治之
+		- **构建抽象模型**：Map and Reduce, Barrier 作用
+		- 上升到构架：自动并行化并隐藏低层细节
+			- 隐藏细节。提供统一的计算框架
+	- **主要设计思想和特征**
+		- 向“外”横向扩展，而非向“上”纵向扩展
+		- **失效**被认为是常态，把计算处理向数据迁移；顺序处理数据，避免 **随机访问数据**
+		- 为应用开发者隐藏系统层细节 
+
+
+- Ch. 4 Google MapReduce 的基本架构 (**三驾马车**)
+	-  ![image.png|600](https://kold.oss-cn-shanghai.aliyuncs.com/20250911144518.png)
+	- 基本工作原理
+		- 什么时候 local/remote read/write, figure it out
+			- local write: 在 Map Phase, worker 本地写。
+			- 尽可能读取本地或本机架的数据进行计算，*更快*
+			- 中间可能有 *sorting*, *combining* ,等操作
+			- 从本地磁盘到 Reduce，是 remote read，然后再写到。
+	- 失效处理：主节点失效，工作节点失效
+		- if *Master* failed
+			- set the *checkpoint*, if failed, re-start from the latest checkpoint
+			- if only one master, then stop it
+		- If *Worker* failed
+			- It's quite normal
+			- *Master* will send check command to *Worker*, so if it doesn't response in time, then re-schedule its job to other *Worker*
+	- 带宽优化（*Combiner*）
+		- **键值对**引起通信带宽开销
+		- *解决*: All Mapper node proceed middle-key-value *pair* would be compress by *Combiner*.
+			- **归并**
+			- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251227202543.png)
+
+	- 计算优化：*冗余*
+		- 把一个 Map 计算任务交给多个 *Map*节点，**取最快者的结果**！
+	- 用数据分区解决相关性问题（Partitioner）
+		- Problem: the data from one *Reducer* may come from multiple *Mapper*, so we need to *merge* data that from same *Reducer*
+		- **Solution**: partitioning the middle result of *Mapper*.
+			- 数据分区，类似快速排序中的 `split`
+	- Google GFS 的基本设计原则
+		- 廉价本地磁盘分布存储
+		- 多数据自动备份
+		- 为上层的 MapReduce 计算框架提供支撑
+	- Google GFS 的基本构架和工作原理
+		- GFS Master 的主要作用
+			- 三种元数据
+				- Name space, 分布式文件系统的目录结构
+			    - 映射表 (`Chunk -> filename`)
+			    - chunk 副本的位置信息。
+		- GFS Chunk Server 的主要作用
+			- `GFS chunkserver`
+				- 保存大量实际数据的服务器
+				- 每个数据块会在 3 个不同的地方复制副本。
+		- 数据访问工作过程
+			- view [[FBDP-3#3 . 简述GFS的基本架构和数据访问过程。]]
+			- 不经过 Master，实现了并发访问.
+	-  Big Table
+		- 设计目标
+			- **存储多种数据**
+			- **海量的服务请求**
+			- **商用数据库无法使用**
+		- Data Model: Parse, Distributed, Persistent, Multidimensional Sorted Map
+			- 分布式的持久化存储的多维的有序表
+			- 行关键字，列关键字，时间戳
+		- 物理上的构架
+			- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251227204059.png)
+			- 子表服务器
+			- 子表存储结构 SSTable（用于 GFS 数据块）
+			- 子表数据格式
+			- **子表寻址**：3 级 `B+树`
+- Ch. 5 Hadoop MapReduce 基本架构
+	- Hadoop 平台的基本组成和生态系统
+	- HDFS
+		- 基本特征（和前面对应）
+		- 基本构架
+			- **课内作业**[[FBDP-4]]
+			- `NameNode`: `FsImage`,` EditLog`
+				- 记录了每个文件中各个块所在的*数据节点的位置信息*
+				- **回想一下**你的编程实践过程。
+				- `Editlog`: 你的改动序列
+			- `SecondaryNameNode`
+				- HDFS 组成部分。**保存 NameNode**中对 HDFS 元信息的备份
+				- 减少重启时间。
+			- `DataNode` 
+				- **负责数据的存储和读取**
+				- 根据客户端或者 NameNode 的调度来进行数据的存储和检索。
+				- 定期发送自己所存储的块的列表。
+				- 保存在各个节点的本地 linux 文件系统
+		- 数据分布设计、数据存储策略
+			- 分级文件体系
+			- 部署在 *集群* 上的分布式文件系统。
+			- **通信协议**：TCP/IP
+			- **数据分布设计**
+				- 多副本块形式存储。按照块的方式随机选择存储节点
+			- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251227211527.png)
+			- **数据存取**
+			- 存放：
+				- 第一个副本：上传文件的数据节点。
+				- 第二个副本：与第一个不同机架的节点
+				- 第三个副本：与第一个相同机架的其他节点
+				- MORE： random
+			- 读取
+				- HDFS provide a *API* to identify the ID which the data node belong to
+				- 
+		- 读过程、写过程
+			- ![](https://kold.oss-cn-shanghai.aliyuncs.com/20251227211725.png)
+			- 理解即可
+		- *可靠性和出错恢复*
+			- DataNode:
+				- **心跳**： NameNode check whether the DataNode is valid
+				- if invalid, find a new node.
+			- 数据一致性：checksum
+			- NameNode 元数据失效
+				- FsImage, EditLog
+				- **需要备份**
+	- Hadoop MapReduce
+		- 基本构架
+		- 主要组件
+		- MapReduce v 1.0
+			- `JobTracker`, `TaskTracker` 
+		- YARN (v2.0)
+			- `ResourceManager`, `NodeManager`, `ApplicationMaster`
+		- MapReduce 作业执行过程 
+
+
+ #必考 
+- Ch. 7/8
+	- **有一道编程题**
+
+- Ch. 9
+	- 设计输出格式？
+	- 复合简直对的使用
+	- 伪代码实例
+	- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251225143213.png)
+
+- Ch. 10 搜索引擎算法
+	- PageRank
+
+
+ - Ch. 16
+	 - Hive 基本原理
+	 - 了解 Hive 的 Metastore 原理。
+		 - 找不到元数据就启动不了
+	- **物理分布情况**
+		- 表、分区、桶
+	- Hive QL
+		- DDL，DML，QUERY
+
+- Ch. 17
+	- Spark
+	- 基本构架和组件
+	- Spark Context 初始化了什么？
+	- Executor 启动了什么？
+	- Spark 的程序执行过程
+		- RDD 调度过程：DAGScheduler, TaskScheduler
+	- 技术特点
+		-  **内存计算**。比 MapReduce 更快
+
+- Ch 18/19 Spark basic programming
+- Spark install and run
+- Spark programming model
+	- RDD's operation, execution, fault tolerance, reliance, persistent
+	- key-value 操作
+		- 聚合 `groupby` 
+		- 链接 `link`
+		- 排序 `sort`
+		- 分区 `partition`
+	- 
