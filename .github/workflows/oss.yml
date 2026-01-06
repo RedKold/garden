@@ -1,0 +1,61 @@
+name: 同步 OSS 到 Obsidian 仓库
+
+on:
+  # 每 6 小时自动同步一次
+  schedule:
+    - cron: '0 */6 * * *'
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  sync-from-oss:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 拉取代码
+      - name: 检出仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # 2️⃣ 安装并配置阿里云 ossutil
+      - name: 安装 ossutil
+        uses: manyuanrong/setup-ossutil@v2.0
+        with:
+          # 你的 Endpoint: oss-cn-shanghai.aliyuncs.com
+          endpoint: "oss-cn-shanghai.aliyuncs.com"
+          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+
+      # 3️⃣ 从 OSS 下载到本地 content/
+      - name: 拉取 OSS 文件到 content/
+        run: |
+          # 确保 content 目录存在
+          mkdir -p content
+          
+          # 使用 ossutil sync 命令
+          # --delete 表示如果 OSS 上删除了文件，本地也会删除（保持完全同步）
+          # oss://bucket-name/path/
+          ossutil sync oss://${{ secrets.OSS_BUCKET }}/0.数字花园/ content/ --delete
+
+          # 确保 .gitkeep 存在，防止 content 文件夹在没有文件时被 Git 忽略
+          touch content/.gitkeep
+          
+          echo "OSS 同步完成 ✅"
+
+      # 4️⃣ 若有变动就提交到 GitHub 仓库
+      - name: Commit & push if changed
+        env:
+          TZ: Asia/Shanghai
+        run: |
+          git config user.name  "OSS Sync Bot"
+          git config user.email "bot@users.noreply.github.com"
+
+          if [[ -n $(git status --porcelain) ]]; then
+            git add -A
+            git commit -m "chore: sync notes from OSS $(date '+%Y-%m-%d %H:%M:%S')"
+            git push
+            echo "已检测到变动并推送 🚀"
+          else
+            echo "没有文件变化，跳过提交 ✔"
+          fi
