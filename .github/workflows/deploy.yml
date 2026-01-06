@@ -1,9 +1,14 @@
 name: Deploy Quartz site to GitHub Pages
- 
 on:
-  push:
-    branches:
-      - v4
+ push:
+   branches:
+     - v4
+ # 新增：当“同步 OSS”这个工作流成功完成后，自动触发自己
+ workflow_run:
+   workflows: ["同步 OSS 到 Obsidian 仓库"] # 必须和你同步脚本顶部的 name 一致
+   types:
+     - completed
+
  
 permissions:
   contents: read
