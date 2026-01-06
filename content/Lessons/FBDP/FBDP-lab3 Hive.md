@@ -1,8 +1,4 @@
-
-| 姓名  | 学号        |
-| --- | --------- |
-| 朱晗  | 231275036 |
-
+for hive tutorial, you can check [[Hive Gemini Tutorial]]
 ## 任务 1 导入数据
 
 
@@ -28,6 +24,8 @@ LOCATION '/user/hive/csv_data/offline';
 
 
 创建 online 的同理
+```
+
 
 ```sql
 CREATE EXTERNAL TABLE IF NOT EXISTS ccf_online_stage1_train (
@@ -407,3 +405,63 @@ LIMIT 10;
 
 同时，对于实验 2 用手动编写 MapReduce 任务实现的 wordcount，hive 显然更简单，体现了自底向上逐渐封装简化的妙处，也体现了 MapReduce 计算框架的**生命力。**
 
+
+## Exam Aid
+**条件语句**：`WHEN <a boolean expression> THEN`
+- 结合 CASE 使用
+[[SQL base#1. `CASE WHEN` 基础]]
+
+```mysql
+CREATE TABLE t (
+	id INT,
+	name STRING,
+);
+```
+
+- user_info
+	- total_spend
+	- user_id
+- 查找
+
+```mysql
+SELECT
+	t.UserLevel,
+	COUNT(*) AS UserCount
+FROM(
+	SELECT
+		CASE
+			WHEN total_spend > 10000 THEN 'high-value'
+			WHEN total_spend > 5000 THEN 'mid-value'
+			ELSE 'low-value'
+		END
+	FROM user_info
+) t
+GROUP BY t.UserLevel
+ORDER BY UserCount DESC;
+```
+
+```mysql
+SELECT
+	t.UserLevel,
+	COUNT(*) AS UserCount
+FROM(
+	SELECT 
+		CASE 
+			WHEN total_spend > 10000 THEN 'high-value'
+			WHEN total_spend > 5000 THEN 'mid-value'
+			ELSE 'low-value'
+		END AS UserLevel
+	FROM user_info
+) t
+
+GROUP BY t.UserLevel
+ORDER BY UserCount DESC;
+```
+
+
+**聚合办法**：
+`groupByKey`：**按键归类**。`a->[1,2,3]`
+`reduceByKey`: **归并并计算**。 `a->[6]` , `rdd.reduceByKey(lambda a, b : a +b)`
+`sortByKey`: **排序**。
+- `ascending = True`: 递增
+- 否则，递减。

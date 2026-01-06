@@ -11,10 +11,10 @@ $$
 $$
 ## 2. 并行计算按照系统类型划分，可以分为哪几种？简述每一种系统类型的特点。
 
-按系统类型：
+**按系统类型**：
 - 多核/众核并行计算系统 MC
-- 对称多处理系统 SWP
-	- 多个相同处理器类型通过总线 bus 连接并共享存储器
+- 对称多处理系统 SWP Symmetric Word Parallel
+	- **多个相同处理器类型通过总线** bus 连接并共享存储器
 - 大规模并行处理 MPP (Massive Parallel Processing)
 	- 专用**内联网**连接一组处理器形成的一个计算系统
 - 集群 Cluster
@@ -46,3 +46,7 @@ $$
 		- 其内部也有不少别的 interface。
 ## 4. 尝试安装并运行MPICH，编译examples里自带的cpi.c代码并执行，给出运行结果截图。
 ![image.png|500](https://kold.oss-cn-shanghai.aliyuncs.com/20250911203655.png)
+
+
+- Previous [[FBDP-1]]
+- Next [[FBDP-3]]

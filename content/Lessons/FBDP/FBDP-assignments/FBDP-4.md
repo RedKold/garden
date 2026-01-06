@@ -48,7 +48,7 @@
 ### 简述HDFS是如何应对NameNode 、DataNode和数据出错的
 - **NameNode 出错**
 	- HDFS 实现了备份机制，即核心元数据文件 `FsImage` 和 `EditLog` 定期备份到服务器 SecondaryNameNode
-	- 当 NameNode 出错，可以通过 SecondaryNameNode 来回复
+	- 当 NameNode 出错，可以通过 **SecondaryNameNode 来回复**
 - **DataNode 出错**
 	- DataNode 会定期发送“心跳”message 给 NameNode
 	- 如果 DataNode 发生故障，NameNode 侦测到某些 DataNode 没有及时发送心跳信息，就标记它们为宕机。NameNode 会尝试指示其他健康的 DataNode 之间相互复制。将受影响的数据块创建新的副本。
@@ -75,3 +75,6 @@
 	- **增强容错能力**：RM和AM相互配合，能对失败任务和节点进行恢复。
 
 **总体而言**，YARN 作为 Hadoop 2.0 的更新，使得其从 MapReduce 引擎升级为通用的计算处理平台。更多的编程模型可以运行在同一个 Hadoop 集群中
+
+
+- [[FBDP-5]]

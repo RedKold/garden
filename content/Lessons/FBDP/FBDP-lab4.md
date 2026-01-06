@@ -119,6 +119,17 @@ def coupon_count(spark, input_path):
     top10 = sorted_rdd.take(10)
 ```
 
+- 总结 spark 标准步骤：
+	- 获得 spark 上下文 `sc = spark.sparkContext`
+	- 对 `rdd` 进行操作
+		- 如何获得 `rdd`？
+		- 可以 `rdd = sc.textFile(input_path)`
+	- 如何进一步操作？
+		- `rdd.map()`，划分出去，做 map。善于使用 lambda 表达式！做分词和最终的 emit 键值对都可以用
+		- `rdd.filter()`：筛选有关数据。布尔表达式为真的数据部分
+		- `rdd.sortByKey()`：排序方法。默认升序。可以用 `ascending=False` 改写。
+		- `rdd.reduceByKey`: 实际是 reduce 方法，这里可以写 `lambda a,b` 作为一个键不同的值，然后你讨论如何合并这两个值 
+		- 
 #### Result
 ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251216212104.png)
 
@@ -244,6 +255,7 @@ bin/spark-submit \
 
 #### Code
 此处展示 SQL 查询关键代码
+
 ```python
 def coupon_month(spark, input_path):
     sc = spark.sparkContext

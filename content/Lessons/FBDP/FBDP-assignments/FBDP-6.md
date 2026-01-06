@@ -91,3 +91,6 @@ CAP 定理:
 	- **单调读一致性**：如果进程已经看到过数据对象的某个值，则后续访问都都不会访问在那个值之前的值
 	- 会话一致性：store the **process** which **access** the storage system into context of **session**. If session is alive, system keep consistency.  If session is terminated, we need to set up new sessions. (它把访问存储系统的进程放到会话（session）的上下文中)
 	- **单调写一致性**：系统保证来自同一个进程的写操作顺序执行。系统必须保证这种程度的**一致性。**
+
+
+- [[FBDP-7]]

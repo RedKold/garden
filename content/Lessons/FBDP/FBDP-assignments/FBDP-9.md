@@ -17,9 +17,9 @@ completed: "true"
 ### 1 . 简述Spark的技术特点
 - **技术特点**
 	- RDD：**弹性分布式数据集**： 最核心的数据抽象
-	- Transformation & Action: Spark 通过 RDD 的两种不同类型的运算实现了惰性计算。
-	- Lineage：通过血统关系 Lineage 记录一个 RDD 如果通过其他 RDD 转换过来。保证可以根据父系从新计算，**鲁棒性提升**
-	- Spark 调度：事件驱动的 Scala 库 Akka 完成。复用线程池取代 MapReduce 进程或者线程启动和切换的开销
+	- *Transformation* & *Action*: Spark 通过 RDD 的两种不同类型的运算实现了惰性计算。
+	- *Lineage*：通过血统关系 *Lineage* 记录一个 RDD 如果通过其他 RDD 转换过来。保证可以根据父系从新计算，**鲁棒性提升**
+	- *Spark* 调度：事件驱动的 Scala 库 Akka 完成。复用线程池取代 MapReduce 进程或者线程启动和切换的开销
 - API: Scala API, also Java, Python 等的支持。
 - Spark 生态
 	- Spark SQL
@@ -50,12 +50,12 @@ Spark 是一种为大规模数据处理而设计的快速通用的分布式计�
 	- Any note can be executed in Spark cluster
 	- **最重要角色**
 - **Task**:
-	- SparkContext发送到 Executor 节点执行的一个工作单元
+	- SparkContext发送到 Executor 节点执行的一个**工作单元**
 - **Driver**
 	- **驱动器节点**。运行 Application 的，由 `main()` 创建 SparkContext 的进程。Driver 节点页负责提交 Job，并将 Job 转化为 Task，在各个 Executor 进程中协调 Task 的调度。Driver 节点可以不运行于集群节点机器上
 	- **最重要角色**：执行的起点，负责调度
 - **Executor**
-	- 执行器节点。在 Work Node 上位 Application 启动的进程。可以运行 Task 并将数据保存在内存或磁盘存储，也能将结果返回给 Driver
+	- 执行器节点。在 Work Node 上位 Application 启动的进程。可以运行 *Task* 并将数据保存在内存或磁盘存储，也能将结果返回给 *Driver*
 
 ![](https://kold.oss-cn-shanghai.aliyuncs.com/20251204114930.png)
 
@@ -96,3 +96,5 @@ Spark 是一种为大规模数据处理而设计的快速通用的分布式计�
 - Job 和 Stage 是针对一个 RDD 执行过程的划分
 - Tasks 具体到了 RDD 中每个分区的执行
 
+
+- [[FBDP-10]]

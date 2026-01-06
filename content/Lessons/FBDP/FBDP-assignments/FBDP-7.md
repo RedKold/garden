@@ -94,7 +94,7 @@ HBase 基本架构包括
 		- 管理用户对表的增加、删除、修改、查询等操作
 		- 实现不同 Region 服务器之间的负载均衡
 		- 在 Region 分裂或合并后，负责重新调整 Region 的分布
-		- 对发生故障失效的 Region 服务器傻姑娘的 Region 进行迁移
+		- 对发生故障失效的 Region 服务器 Region 进行迁移
 - Region 服务器
 	- 最核心的模块。
 	- 负责维护给自己的 Region 并响应用户的读写请求
@@ -122,3 +122,4 @@ HBase：由一个 MasterServer 和由一个子表数据区服务器 RegionServer
 	- RegionServer 处理：接受到查询请求之后，查询对应的 Region 并返回结果。
 
 
+- [[FBDP-8]]

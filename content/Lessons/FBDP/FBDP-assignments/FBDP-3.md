@@ -1,5 +1,3 @@
-姓名：朱晗
-学号：`231275036`
 ### 1. MapReduce提供了一个统一的计算框架，请简述该框架的主要功能。
 Map 和 Reduce 两个抽象的接口
 `map: (k1,v1) -> [(k2;v2)]`
@@ -14,7 +12,7 @@ Map 和 Reduce 两个抽象的接口
 - input:
 	- map 输出的一组键值对将通过合并处理，**将同样主键下的**不同数值合并到一个列表 `[v2]` 种
 - process
-	- 对传入的中间结果列表数据进行处理整理，产生最终的结果输出 `[(k3;v3)]`
+	- 对传入的中间结果列表数据进行处理整理，**产生最终的结果输出** `[(k3;v3)]`
 - output
 	- `[(k3,v3)]`
 
@@ -35,13 +33,14 @@ Google MapReduce 的并行处理大概可以按这个流程图来理解：
 - 三个核心部件：
 	- `GFS Master`
 		- 保存三种元数据
-		- Name space
-		- 映射表 (Chunk -> filename)
-		- chunk 副本的位置信息。
+			- Name space 名空间
+			- 映射表 (Chunk -> filename)
+			- chunk 副本的位置信息。
 	- `GFS chunkserver`
 		- 保存大量实际数据的服务器
 		- 每个数据块会在 3 个不同的地方复制副本。
 	- `GFS client`
+		- the application
 
 - **数据访问过程**
 	- Before program run, data has been store in **GFS** file system. When program run, the **application** (known as GFS client) will tell GFS server filename or chunk index which he want to access.
@@ -65,3 +64,5 @@ Google MapReduce 的并行处理大概可以按这个流程图来理解：
 	- 时间戳 (time stamp) 一个 URL 网页可能不断更新，Google 保存时间戳来区分不同时间的网页数据。
 	- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20250915151635.png)
 	- 单元： Cell: the storage referenced by a particular row key, column key, and time stamp
+
+[[FBDP-4]]

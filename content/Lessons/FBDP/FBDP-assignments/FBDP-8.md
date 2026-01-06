@@ -11,8 +11,8 @@
 ### 简述 Hive 和 RDBMS 的区别
 
 - Hive 主要用于批量数据分析处理（OLAP）。RDBMS 主要用于事务型数据处理（OLTP）
-- Hive 使用的是 Hadoop 的 HDFS，容易拓展自己的存储能力和计算能力；RDBMS 用的是服务器本地的文件系统
-- RDBMS 使用**标准的 SQL 查询语言**，查询通常是**在单机或者集群模式**下由 SQL 引擎直接执行，查询响应速度快；Hive 提供和 SQL 类似的查询语言 HiveQL，但底层会将查询翻译成 **MapReduce、Tez 或 Spark** 作业在**分布式环境**下执行，适合高延迟的批处理分析。
+- Hive 使用的是 Hadoop 的 **HDFS**，容易拓展自己的存储能力和计算能力；RDBMS 用的是**服务器本地的文件系统**
+- RDBMS 使用**标准的 SQL 查询语言**，查询通常是**在单机或者集群模式**下由 SQL 引擎直接执行，查询响应速度快；Hive 提供和 SQL 类似的查询语言 HiveQL，但底层会将查询翻译成 **MapReduce 或 Spark** 作业在**分布式环境**下执行，适合高延迟的批处理分析。
 
 - Hive 的数据加载模式是**读时模式**（快），RDBMS 是写时模式（慢）
 - Hive 数据插入支持批量导入/单条插入，RDBMS 支持单条或者批量导入
@@ -25,7 +25,7 @@ HBase 主要解决实时数据查询问题，Hive 主要解决数据处理和计
 
 - 从数据存储和结构来看
 	- HBase：基于 Hadoop 的 NoSQL 数据库，键值对存储数据。列族为单位进行存储，支持稀疏数据模型，擅长处理半结构化或非结构化的数据。 **实时访问、数据存储在 HDFS**中并以列为单位存储
-	- Hive：基于 Hadoop 的数据仓库工具，支持结构化数据存储，数据以表的形式存储在 HDFS 中。Hive 的数据可以是 CSV, Parquet、ORC 等格式，通常以批量方式写入和读取，适合大规模数据分析
+	- Hive：基于 Hadoop 的数据仓库工具，支持结构化数据存储，数据以表的形式存储在 HDFS 中。Hive 的数据可以是 CSV, Parquet ORC 等格式，通常以批量方式写入和读取，适合大规模数据分析
 - 查询语言和访问方式
 	- HBase：不支持 SQL 语法，采用基于 Java 的 API 进行数据操作。数据查询方式更接近 NoSQL 数据库，通过键值对或行键查找数据，支持快速随机读写
 	- Hive：提供类似 SQL 的查询语言 HiveQL，允许用户使用 SQL 语法进行查询。但是 Hive 会转化为 MapReduce、Tez 或者 Spark 执行。
@@ -46,7 +46,7 @@ HBase 主要解决实时数据查询问题，Hive 主要解决数据处理和计
 ### 3. 简述 Hive 的体系结构和各组成模块的作用
 - 体系结构图：
 	- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20251124172012.png)
-- Hive 是构建在整个 hadoop 之上的，主要由 Driver（Complier、 Optimizer、Executor）、Metastore、客户端（CLI、HWI、ThriftServers（JDBC、ODBC））组成
+- Hive 是构建在整个 hadoop 之上的，主要由 Driver（Compiler、 Optimizer、Executor）、Metastore、客户端（CLI、HWI、ThriftServers（JDBC、ODBC））组成
 - **Driver**：Hive 的核心。包括 Compiler, Optimizer, 和 Executor
 	- 解析 HQL 预计、编译优化、生成执行计划、然后调用 MapReduce 计算框架
 - **Metastore**组件：数据服务组件，用以存储 Hive 的元数据：存储操作的数据对象的格式信息，在 HDFS 的存储位置信息以及其他的元数据。
@@ -83,3 +83,4 @@ HBase 主要解决实时数据查询问题，Hive 主要解决数据处理和计
 
 
 
+[[FBDP-9]]
