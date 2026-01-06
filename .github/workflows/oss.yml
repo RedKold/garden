@@ -1,10 +1,8 @@
 name: 同步 OSS 到 Obsidian 仓库
 
 on:
-  # 每 6 小时自动同步一次
   schedule:
     - cron: '0 */6 * * *'
-  # 允许手动触发
   workflow_dispatch:
 
 jobs:
@@ -12,38 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ 拉取代码
       - name: 检出仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      # 2️⃣ 安装并配置阿里云 ossutil
+      # 1️⃣ 下载最新版 ossutil (1.7.13)
       - name: 安装 ossutil
-        uses: manyuanrong/setup-ossutil@v2.0
-        with:
-          # 你的 Endpoint: oss-cn-shanghai.aliyuncs.com
-          endpoint: "oss-cn-shanghai.aliyuncs.com"
-          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
-          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        run: |
+          curl -o ossutil64 http://gosspublic.alicdn.com/ossutil/1.7.13/ossutil64
+          chmod +x ossutil64
 
-      # 3️⃣ 从 OSS 下载到本地 content/
+      # 2️⃣ 配置并检查 Secrets
+      - name: 配置 ossutil
+        run: |
+          # 检查 Secret 是否真的读取到了
+          if [ -z "${{ secrets.OSS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ 错误: 没读到 OSS_ACCESS_KEY_ID，请检查 GitHub Settings -> Secrets"
+            exit 1
+          fi
+          # 配置命令
+          ./ossutil64 config -e oss-cn-shanghai.aliyuncs.com -i ${{ secrets.OSS_ACCESS_KEY_ID }} -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} -L CH
+
+      # 3️⃣ 执行同步
       - name: 拉取 OSS 文件到 content/
         run: |
-          # 确保 content 目录存在
           mkdir -p content
+          # 使用当前目录下的 ./ossutil64 确保版本正确
+          # sync 命令会将云端 0.数字花园 目录的内容同步到本地 content 目录
+          ./ossutil64 sync oss://${{ secrets.OSS_BUCKET }}/0.数字花园/ content/ --delete
           
-          # 使用 ossutil sync 命令
-          # --delete 表示如果 OSS 上删除了文件，本地也会删除（保持完全同步）
-          # oss://bucket-name/path/
-          ossutil sync oss://${{ secrets.OSS_BUCKET }}/0.数字花园/ content/ --delete
-
-          # 确保 .gitkeep 存在，防止 content 文件夹在没有文件时被 Git 忽略
+          # 确保 .gitkeep 存在
           touch content/.gitkeep
-          
           echo "OSS 同步完成 ✅"
 
-      # 4️⃣ 若有变动就提交到 GitHub 仓库
+      # 4️⃣ 提交并推送
       - name: Commit & push if changed
         env:
           TZ: Asia/Shanghai
