@@ -32,17 +32,22 @@ jobs:
           # 配置命令
           ./ossutil64 config -e oss-cn-shanghai.aliyuncs.com -i ${{ secrets.OSS_ACCESS_KEY_ID }} -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} -L CH
 
-      # 3️⃣ 执行同步
+     # 3️⃣ 执行同步：将 OSS 根目录内容同步到本地 content/
       - name: 拉取 OSS 文件到 content/
         run: |
+          # 1. 创建必要目录
           mkdir -p content
-          # 使用当前目录下的 ./ossutil64 确保版本正确
-          # sync 命令会将云端 0.数字花园 目录的内容同步到本地 content 目录
-          ./ossutil64 sync oss://${{ secrets.OSS_BUCKET }}/0.数字花园/ content/ --delete
+          mkdir -p /tmp/oss_backup
+
+          # 2. 执行同步
+          # 注意：oss://${{ secrets.OSS_BUCKET }}/ 后面不加具体文件夹名，表示同步整个桶
+          # 使用 --include 和 --exclude 可以过滤不需要的文件（可选）
+          ./ossutil64 sync oss://${{ secrets.OSS_BUCKET }}/ content/ --delete --backup-dir /tmp/oss_backup
           
-          # 确保 .gitkeep 存在
+          # 3. 确保 .gitkeep 存在，防止 content 文件夹被 Git 忽略
           touch content/.gitkeep
-          echo "OSS 同步完成 ✅"
+          
+          echo "OSS 同步完成 ✅ (已同步根目录下所有文件夹)"
 
       # 4️⃣ 提交并推送
       - name: Commit & push if changed
