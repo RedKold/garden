@@ -8,6 +8,9 @@ on:
 jobs:
   sync-from-oss:
     runs-on: ubuntu-latest
+    # 1️⃣ 必须添加权限声明
+    permissions:
+      contents: write
 
     steps:
       - name: 检出仓库
@@ -15,41 +18,31 @@ jobs:
         with:
           fetch-depth: 1
 
-      # 1️⃣ 下载最新版 ossutil (1.7.13)
       - name: 安装 ossutil
         run: |
           curl -o ossutil64 http://gosspublic.alicdn.com/ossutil/1.7.13/ossutil64
           chmod +x ossutil64
 
-      # 2️⃣ 配置并检查 Secrets
       - name: 配置 ossutil
         run: |
-          # 检查 Secret 是否真的读取到了
           if [ -z "${{ secrets.OSS_ACCESS_KEY_ID }}" ]; then
-            echo "❌ 错误: 没读到 OSS_ACCESS_KEY_ID，请检查 GitHub Settings -> Secrets"
+            echo "❌ 错误: 没读到 OSS_ACCESS_KEY_ID"
             exit 1
           fi
-          # 配置命令
           ./ossutil64 config -e oss-cn-shanghai.aliyuncs.com -i ${{ secrets.OSS_ACCESS_KEY_ID }} -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} -L CH
 
-     # 3️⃣ 执行同步：将 OSS 根目录内容同步到本地 content/
       - name: 拉取 OSS 文件到 content/
         run: |
-          # 1. 创建必要目录
           mkdir -p content
           mkdir -p /tmp/oss_backup
-
-          # 2. 执行同步
-          # 注意：oss://${{ secrets.OSS_BUCKET }}/ 后面不加具体文件夹名，表示同步整个桶
-          # 使用 --include 和 --exclude 可以过滤不需要的文件（可选）
+          # 同步根目录内容到 content/
           ./ossutil64 sync oss://${{ secrets.OSS_BUCKET }}/ content/ --delete --backup-dir /tmp/oss_backup
           
-          # 3. 确保 .gitkeep 存在，防止 content 文件夹被 Git 忽略
+          # 2️⃣ 注意：清理一下生成的二进制文件，避免被提交到仓库
+          rm -f ossutil64
           touch content/.gitkeep
-          
-          echo "OSS 同步完成 ✅ (已同步根目录下所有文件夹)"
+          echo "OSS 同步完成 ✅"
 
-      # 4️⃣ 提交并推送
       - name: Commit & push if changed
         env:
           TZ: Asia/Shanghai
