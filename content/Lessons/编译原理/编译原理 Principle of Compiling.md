@@ -1,5 +1,9 @@
 - 教师-许畅
 
+> task number: 17
+
+
+
 ## 第三章词法分析
 
 ### 词法分析器的作用
@@ -198,7 +202,7 @@ else return "no";
 - 理论上最坏情况下的 DFA 的状态个数是 NFA 状态个数的**指数**多个
 	- 但是对于大部分应用，NFA 和相应的 DFA 的状态数量大致相同
 
-- 常用操作
+- **常用操作**
 	- $\varepsilon-\text{closure}(s)$: 从 NFA 状态 $s$ 开始，只通过 $\varepsilon$ 转换可以到达的 NFA 状态集合
 	- 求闭包：$\varepsilon-\text{closure}(T)$: 从 $T$ 中某个状态 $s$ 开始，只通过 $\varepsilon$ 转换能到达的 NFA 状态集合
 	- $move(T,a)$: 从 $T$ 中某个状态 $s$ 出发，通过一个标号为 $a$ 的转换能到达的 NFA 状态集合
@@ -260,7 +264,7 @@ else return "no";
 - 基本作用
 	- 从词法分析器获得词法单元的序列，确认该序列是否可以由语言的文法生成
 	- 对于语法错误的程序，报告错误信息
-	- 对于语法正确的程序，生成语法分析树（简称语法树）
+	- 对于语法正确的程序，生成**语法分析树（简称语法树）**
 
 ### 语法分析树的分类
 - General
@@ -274,15 +278,134 @@ else return "no";
 - BNF
 #### 上下文无关文法
 one CFG contains 4 parts:
-- 终结符号 (terminal): 组成串的基本符号（词法单元名字）
-- 非终结符号：表示串的集合的语法变量
-	- 在程序设计语言中通常对应于某个程序构造，例如 *stmt*（语句）
-- **开始符号**：某个被指定的 **非终结符号**
-- **产生式**：描述将终结符号和非终结符号组成串的方法（一些规则）
+#### 终结符号 (terminal): 
+组成串的基本符号（词法单元名字）
+#### 非终结符号：
+表示串的集合的语法变量
+- 在程序设计语言中通常对应于某个程序构造，例如 *stmt*（语句）
+#### **开始符号**：
+某个被指定的 **非终结符号**
+#### **产生式**：
+- 描述将终结符号和非终结符号组成串的方法（一些规则）
 	- 形式：头（左）部 -> 体（右）部
 	- 头部是一个非终结符号，右部是一个符号串
 	- 例子： $expression \to expression +term$
 	![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260309120013.png)
 
 
+- $term$ is a sequence of factors joined by "multiplying" operators (`*` or `/`)
+	- 上面的产生式集合，描述了 $term$ 的产生
+- $factor$ is the most basic building block. It has the highest precedence. (cannot be broken up by operators outside of it)
+	- name ($id$)? or an entire expression wrapped by a parentheses
+- $expression$: is the top-level construct, representing a sequence of terms joined by "adding" operators (`+` or `-`).
+	- the final mathematical statement
+
+	![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311104106.png)
+## 推导
+> [!Definition] 推导
+> - 将待处理的串中的某个非终结符号替换为这个非终结符号的某个产生式的体 
+> - 从开始符号出发，不断进行上面的替换，就可以得到文法的不同句型
+
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311104523.png)
+
+**推导**的正式定义：
+- 如果 $A\to\gamma$ 是一个产生式，那么 $\alpha A\beta\implies\alpha\gamma \beta$
+- **最左/右推导**(leftmost/rightmost derivation): $\alpha/\beta$ 中不包含非终结符号
+	- 符号：
+$$
+\implies_{lm}^{*},\implies_{rm}^{*}
+$$
+- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311104824.png)
+
+## 句型/句子/语言
+- 句型（sentential form）
+	- if $S\implies^{*}\alpha$, then $\alpha$ is the sentential form of grammar $S$
+- 句子 (sentence)
+	- the *sentence* of *grammar* is the sentential form without *non-terminal sign*
+- 语言
+	- the *language* of grammar $G$ is the *set* of sentences of $G$, that is $L(G)$
+	- $w\in L(G)\iff w\text{ is sentence of }G,$，that is $S\implies^{*}w$
+
+
+## 语法分析树
+- 是什么？
+	- **推导**的图形表示形式
+	- 根结点的标号是文法的 *开始符号*
+	- 每个 *叶子结点* 的标号是非终结符号、中间符号或 $\varepsilon$
+	- 每个 *内部结点* 的标号是非终结符号
+	- 每个 *内部结点* 表示某个产生式的一次**应用**
+		- 结点的标号为产生式头，其子结点从左到右是产生式的体
+- 树的叶子组成的 *序列* 是根的文法符号的一个句型
+- 一棵语法分析树可对应多个推导序列
+	- 但只有 *唯一的最左推导及最右推导*
+
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311110025.png)
+
+推导仅仅是字符串替换，不要想更多的信息（知识的诅咒）
+
+在这个意义下产生了二义性
+
+## 二义性
+> [!Definition] 二义性 (ambiguity)
+> 如果一个文法可以为某个句子生成 *多棵* 语法分析树，这个 *文法* 就是二义的
+
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311111526.png)
+- 现在没有优先级的**信息**
+- 二义性和程序设计的文法原则矛盾（通常无二义），所以我们需要规定计算的优先级
+	- 避免一个程序有多种“正确”的解释
+- 我们用 $term,expression,factor$ 的层次来解决
+
+## 词法分析和语法分析的比较
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311112350.png)
+
+## 上下文无关文法和正则表达式
+- 上下文无关文法比正则表达式的能力 *更强*
+	- 正则语言是文法描述语言的子集
+
+> [!Question] Proof to 一些用文法描述的语言不能用正则表达式描述
+> 首先 $S\to aSb |ab$ 描述了语言 $L\;\{ a^{n}b^{n}|n>0 \}$，但这个语言无法用 DFA 识别
+> - 假设有 DFA 识别此语言 $L$，且这个 DFA 有 $k$ 个状态。那么在识别 $a^{k+1}\dots$ 的输入串时，必然两次到达同一个状态（**鸽巢原理**）。假设自动机在第 $i$ 个 $a$ 和第 $j$ 个 $a$ 时进入同一个状态，那么：因为 DFA 识别 $L$，$a^{j}b^{j}$ 必然到达接受状态，因此 $a^{i}b^{j}$ 必然也到达接受状态
+> - 直观地说：**有穷自动机**不能计数
+
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260311114057.png)
+
+
+## 文法及其生成的语言
+- **语言**是从文法的开始符号出发，能推导到的所有句子的集合
+	- 文法 $G: S\to aS\;|\;a\;|\;b,\;L(G)=\{ a^{i}(a|b),i\ge 0 \}$
+	- 文法 $G$：$S\to aSb\;|\;ab,L(G)=\{ a^{n}b^{n},n\geq 1 \}$
+	- 文法 $G$: $S\to(S)S\;|\;\varepsilon$，$L(G)=\{ 所有 \}$
+- 如何 *验证* 文法 $G$ 确定的语言 $L$？
+	- 证明 $G$ 生成的每个串都在 $L$ 中
+	- 证明 $L$ 的每个串都能被 $L$ 生成
+
+
+## 设计文法
+语法分析器接受的语言是程序设计语言的**[[集合#超集|超集]]**；必须通过语义分析来剔除一些符合文法、但不合法的程序
+
+- **文法处理**
+	- 消除 *二义性*
+		- 二义性：文法可以为句子生成多棵不同的分析树
+	- 消除 *左递归*
+		- **左递归**：文法中的一个非终结符号 $A$ 使得对某个串 $\alpha$，存在一个推导 $A\implies^{+}A\alpha$，则称这个文法是左递归的
+		- Note: $+$ is on the $\implies$
+		- 无限递归否则
+	- 提取 *左公因子*
+
+### 左递归(left recursive)的消除
+> [!Definition] 左递归 (left recursive)
+>  **左递归**：文法中的一个非终结符号 $A$ 使得对某个串 $\alpha$，存在一个推导 $A\implies^{+}A\alpha$，则称这个文法是左递归的
+
+> [!Note] 立即左递归
+> 文法中存在一个形如 $A\to A\alpha$ 的产生式
+
+
+自顶向下无法解决左递归，需要消除。但是自底向上的技术可以处理左递归
+
+- 多做题不是坏事
+```
+p105 3.7.1 NFA->DFA,(2)
+chapter 4
+p130 4.2.1 给最左推导最右推导,去掉第四小节二义性的证明，第五小题可以做一下(去掉123)
+```
 
