@@ -29,3 +29,17 @@ GPT 是预训练模型
 - 它提供了快照 (snapshot)
 - 为 AI 量身制作的平行世界
 
+
+## 量变引起质变
+DeepBlue "Scaling Law"
+
+
+> "Tape is Dead, Disk is Tape, Flash is Disk, RAM Locality is King." (Jim Gray, 2006)
+> "Heuristics is Dead, Policy is Heuristics, LLM is Policy, Mechanism is King." (jyy, 2026)
+
+- **低水平陷阱**：~~“做什么都是有意义的”~~
+- 要找到“能走量”的途径 (Agentic AI, OpenClaw, Agent Skills,...)
+
+
+
+> jyy shows the power of AI.
