@@ -1,3 +1,4 @@
+# 调试带参数程序
 ```
 lldb: $(NAME)
 		lldb ./$(NAME) -- -m maps/map.txt -p 1 --version
@@ -11,5 +12,13 @@ gdb 是同理的
 ```
 gdb ./test.out 	# 进入gdb
 (gdb) run < 1.in # 在gdb中重定向
+```
+
+## 从第一条指令开始
+
+-  `starti`
+
+```bash
+gdb --arg ./lib/libc.so ./test_dynamic "hello"
 ```
 
