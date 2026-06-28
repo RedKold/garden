@@ -186,6 +186,8 @@ path_to_merged
 	- 比如 `/proc` 里的真正隐藏目录
 
 你可以 hack 文件系统：因为 OS kernel 会转发 `read, write` 给你的 api
+- 这就是 FUSE 的真正意义。
+
 
 ## FUSE Hacks
 - 把任何远端变成文件系统
