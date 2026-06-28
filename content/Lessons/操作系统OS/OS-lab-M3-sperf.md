@@ -35,3 +35,21 @@ then you get:
   - ENFILE: The system-wide file table is full
 
   Context: First introduced in Version 6 AT&T UNIX. Related functions: sh (1), fork (2), read (2), write (2), fcntl (2), socketpair (2).
+
+
+
+# 正则表达式 (regex. h)
+
+```c
+typedef struct {
+              regoff_t rm_so;
+              regoff_t rm_eo;
+          } regmatch_t;
+```
+   Each  `rm_so` element that is not -1 indicates the start offset of the next largest substring match within the string.  The relative `rm_eo` element indicates the end offset of the match, which is the offset of the first character after the match‐ ing text.
+
+这里的 rm_so 是 match 的开始下标，rm_eo 是结束下标，可以获取 substr
+
+用 `regcomp` 编译正则表达式，注意 C 语言的 `\\` 才能表达正则表达式中的 `\`
+用 `regexec` 执行正则匹配，匹配结果通过 `pmatch[]` 数组返回
+

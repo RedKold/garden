@@ -102,5 +102,11 @@ CLI is a fun design: text to run
 
 ## 乐趣和动机
 - 理解人类文明的高光时刻
-	- 讲cao zuo xi
+	- 讲操作系统 API，如何支撑了不起的软件
+
 - 实现童年梦想的途径
+	- 每一节课都让你“能力增长”
+
+
+
+- NEXT [[OS-lecture-02 应用视角的操作系统]]

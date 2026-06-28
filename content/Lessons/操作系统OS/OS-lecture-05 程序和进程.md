@@ -72,6 +72,52 @@ struct proc {
 - `syscalls`
 	- `getpid(), getppid(), etc..`
 
+
+关于 `procfs`:
+claude: 很好的问题！让我解释一下 /proc 目录的结构：
+```
+  /proc 目录的两类内容
+
+  /proc/
+  ├── 1/              ← 数字目录 = 进程目录 (PID 1 = init/systemd)
+  ├── 2/              ← PID 2
+  ├── 334/            ← PID 334 (比如 bash)
+  ├── ...
+  ├── cpuinfo         ← 字符文件/目录 = 系统信息
+  ├── meminfo
+  ├── mounts
+  ├── self -> 3179/   ← 符号链接，指向当前进程
+  ├── net/
+  └── sys/
+
+  ┌──────────┬──────┬────────────────┬──────────────────────────────┐
+  │   类型   │ 命名 │      内容      │             例子             │
+  ├──────────┼──────┼────────────────┼──────────────────────────────┤
+  │ 进程目录 │ 数字 │ 单个进程的信息 │ /proc/1/, /proc/334/         │
+  ├──────────┼──────┼────────────────┼──────────────────────────────┤
+  │ 系统信息 │ 字符 │ 全局系统状态   │ /proc/cpuinfo, /proc/meminfo │
+  └──────────┴──────┴────────────────┴──────────────────────────────┘
+
+```
+
+
+
+> [!Note] How to know the 1st process in OS?
+> ```bash
+> cat /proc/1/comm
+> ```
+
+res:
+
+```bash
+kasumi@iZuf6d880j0fyz9px7feiaZ:~$ cat /proc/1/comm
+systemd
+```
+
+
+
+
+
 # 进程管理
 ## 创建进程
 **进程管理系统调用**
@@ -204,6 +250,8 @@ why this program print 6 hello, but I use `./fork-demo | cat |wc -l` get a answe
       printf("Hello\n");
   }
 ```
+
+**这个案例最深刻的启示就是，** 进程在 fork 的时候，*会复制操作系统中所有的状态*。包括缓存区。
 
 Another things
 ```c
