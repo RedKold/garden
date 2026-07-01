@@ -99,6 +99,8 @@ struct CPUState {
 如果你写一个 `hello1.c`
 
 - 《计算机系统基础》说，程序是从 ` _start` 开始执行的
+- 但是也不尽然![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260701155511.png)
+
 ```c
 // hello1.c
 void _start()
@@ -142,6 +144,15 @@ syscall						# );
 >  为了理解操作系统上的程序，我们的目标是构造一个能直接被操作系统加载且打印 Hello World 的指令序列。如果你能想到这一点，剩下的一切都可以让 AI 帮助你。
 
 
+
+```asm
+    movq $SYS_##id, %rax; \ 
+    movq $a1, %rdi; \ 
+    movq $a2, %rsi; \ 
+    movq $a3, %rdx; \ 
+    syscall
+
+```
 ## 操作系统上的应用世界
 最小的可执行文件，和庞大的应用程序，在操作系统看来是一样的
 
@@ -170,3 +181,5 @@ syscall						# );
 
 
 用合适的工具，是对调试文本的一步步的提纯。
+
+- NEXT [[OS-lecture-03 硬件视角的操作系统]]

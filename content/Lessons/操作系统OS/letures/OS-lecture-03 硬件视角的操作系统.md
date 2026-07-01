@@ -3,8 +3,6 @@
 - "intelligence is cheap"
 - 一个改变世界的 prompt：
 	- I'm doing xxx, if you are an expert, what would you do ...
-	
-
 - Review:
 # Aside: Before the Lesson
 ## 软件：C (SimpleC), Python, …
@@ -24,9 +22,8 @@
 # 什么是计算机硬件
 
 ==硬件不知道有没有操作系统==
-
+- 我不到啊
 - Hardware run the instruction one by one， pure state machine
-
 - **计算机是一个抽象层**
 	- 隔离复杂性的根本手段
 	- `OS -> printf -> (syscall)write`

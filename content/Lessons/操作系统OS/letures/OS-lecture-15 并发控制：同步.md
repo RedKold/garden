@@ -58,6 +58,7 @@ do{
 	- `cv`: condition variable. `lk`: lock
 
 
+### **条件变量**模版 #必考 
 ```c
 mutex_lock(&lk);
 while(!check_condition()){
@@ -73,6 +74,68 @@ mutex_unlock(&lk);
 **万能同步的实现方法**
 
 在要修改的共享状态前后都上好锁
+
+```c
+void Tlcs(int i, int j){
+ if(i==0 || j==0) return;
+ // TODO
+ dp[i][j] = max3(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]+(a[i]==b[j]))
+ // TODO
+}
+int main(){
+ for(int i=1;i<=n;++i){
+ for(int j=1;j<=m;++j){
+ spawn(Tlcs,i,j);
+ }
+ }
+ join();
+ printf("%d\n",dp[n][m]);
+ return 0;
+}
+```
+
+这是一个 max-common-sequence 问题，请你把它并行化
+
+- 我们可以看到依赖关系：左边，上边，和左上需要计算完毕。
+
+
+```c
+void Tlcs(int i, int j) {
+    if (i == 0 || j == 0) return;
+
+    // Wait until all dependencies (i-1,j), (i,j-1), (i-1,j-1) are ready
+	// using our modle:
+	/*
+		mutex_lock(&lk);
+		while(!check_condition()){
+			cond_wait(&cv, &lk);
+		}
+		mutex_unlock(&lk);
+	*/
+
+    mutex_lock(&lk);
+    while (!(ready[i - 1][j] && ready[i][j - 1] && ready[i - 1][j - 1])) {
+        cond_wait(&cv, &lk);
+    }
+    mutex_unlock(&lk);
+
+    // Compute LCS value for this cell
+    // Dependencies are guaranteed to be computed (ready flags were set)
+    dp[i][j] = max3(
+        dp[i - 1][j],
+        dp[i][j - 1],
+        dp[i - 1][j - 1] + (a[i] == b[j])
+    );
+
+    // Mark this cell as ready and signal waiting threads
+    mutex_lock(&lk);
+    ready[i][j] = 1;
+	// Broadcast signal to waiting threads
+    cond_broadcast(&cv);
+    mutex_unlock(&lk);
+}
+
+```
 
 
 ## 经典同步问题：生产者-消费者问题
@@ -185,3 +248,8 @@ mutex_lock(&lk);
 ```
 
  为每一个 Task Spawn 一个线程。
+
+## 同步的关键：理解同步条件
+- 方法 1：为每个计算节点分配线程
+- 方法 2:
+

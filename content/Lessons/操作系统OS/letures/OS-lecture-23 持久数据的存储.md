@@ -57,6 +57,36 @@
 - **读写头在旋转**。最坏情况也是等一个旋转周期 $T$
 
 ### 疯狂内卷：磁盘（Hard Disk，1956）
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260529164858.png)
+
+> In particular, it must just wait for the desired sector to rotate under the disk head. This wait happens often enough in modern drives, and is an important enough component of I/O service time.
+> It has a special name: **rotational delay**
+
+**对于一传感器版本**
+
+- ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260529165248.png)
+
+  磁盘读取一个扇区需要经历三个阶段：
+  1. 寻道（Seek） — 将磁盘臂移动到正确的磁道。寻道过程包括：加速 → 巡航 → 减速 →
+   精确定位（settling，耗时 0.5~2 ms）。这是最昂贵的操作之一。
+  2. 旋转延迟（Rotational Delay） — 等待目标扇区旋转到磁头下方。寻道完成后，盘片
+  可能已经转过了若干扇区，需要等待目标扇区到来。
+  3. 传输（Transfer） — 当目标扇区经过磁头下方时，实际读写数据。
+
+  核心洞察： I/O 总时间 = 寻道时间 + 旋转延迟 + 传输时间。其中寻道和旋转延迟是主
+  要的性能瓶颈，因为它们涉及机械运动，远比电子传输慢得多。
+
+Doing the math
+
+$$
+T_{I/O}=T_{seek}+T_{rotation}+T_{transfer}
+$$
+
+
+
+
+
+
 #### 构造
 1.5D -> 2.5D (2D x n)
 - 在二维平面上放置许多磁带
@@ -81,6 +111,10 @@
 > - 机械原理上容易修
 > 	- 跌落划伤扇区... 总不会全部 goodbye?
 
+
+
+
+
 **SSD**实在是效果太好了
 - 所以正在侵占机械硬盘空间
 
@@ -91,6 +125,24 @@
 2. 转轴将盘片旋转到读写头的位置
 	- 读写头移动时间通常也需要几个 ms
 **通过缓存/调度等环节**
+
+> [!Note] Disk Scheduling
+> Because of the high cost of I/O, the OS has historically played a role in deciding the order of I/Os issued to the disk.
+> **With dis scheduling, we can make a good guess at how long a "job"(i.e., disk, request) will tkae**
+
+**The disk scheduler** will try to follow the *principle of SJF* (shortest job first) in its operation
+
+**SSTF: Shortest Seek Time First**
+- But a pure SSTF approach may cause **starvation**
+	- 如果有平稳的在 inner track 的 request，那么 pure SSTF 会忽略其他 track 的 request
+
+**SPTF: Shortest Positioning Time First**
+- also called **shortest access time first** or **SAFT**
+> `it depends` is always the answer, reflecting that trade-offs are part of the life of the engineer
+
+
+
+
 
 
 ### 软盘 (Floppy Disk, 1971)
@@ -242,3 +294,7 @@ Random Access 的代价：**寻址**
 - (凭什么不能看到看不见的接口？)
 
 ![](https://jyywiki.cn/OS/2026/static/img/blk-mq.jpg)
+
+
+# Takeaway
+[[OS-OSTEP-security-access]]

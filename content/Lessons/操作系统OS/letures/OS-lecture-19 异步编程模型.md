@@ -285,20 +285,20 @@ await Promise.all([fetchData('1234'), fetchData('5678')])
 
  Promise
 -  简单来说，Promise 是一个"承诺"，表示将来某个时间点会返回一个结果（可能是成功的结果，也可能是失败的原因）。
-Promise 有三种状态：
-- pending：初始状态，既不是成功，也不是失败状态
-- fulfilled：意味着操作成功完成
-- rejected：意味着操作失败
-  - Purpose: Async operation container, represents a value that may be available now/later/never
-  - States: pending → fulfilled (resolved) OR rejected
-  - Methods: .then () for success, .catch () for errors, .finally () for cleanup
-  - Composition: Promise.all (), Promise.race (), Promise.allSettled (), Promise.any ()
+	Promise 有三种状态：
+	- pending：初始状态，既不是成功，也不是失败状态
+	- fulfilled：意味着操作成功完成
+	- rejected：意味着操作失败
+ - Purpose: Async operation container, represents a value that may be available now/later/never
+ - States: pending → fulfilled (resolved) OR rejected
+ - Methods: .then () for success, .catch () for errors, .finally () for cleanup
+ - Composition: Promise.all (), Promise.race (), Promise.allSettled (), Promise.any ()
   async/await
-  - Purpose: Syntactic sugar over Promises, makes async code look synchronous
-  - async function: Always returns a Promise
-  - await keyword: Pauses execution until Promise settles, only inside async functions
-  - Error handling: Uses try/catch instead of .catch () chains
-  - Flow: Linear, easier to read and debug than nested .then () chains
+ - Purpose: Syntactic sugar over Promises, makes async code look synchronous
+ - async function: Always returns a Promise
+ - await keyword: Pauses execution until Promise settles, only inside async functions
+ - Error handling: Uses try/catch instead of .catch () chains
+ - Flow: Linear, easier to read and debug than nested .then () chains
   Both enable non-blocking async code while maintaining readability and composability.
 
 ## 从前端到全栈

@@ -219,10 +219,10 @@ Core: key-value store (GET, SET)
 ### NoSQL & NewSQL
 **我们发现**：key-value 还是不如 sql 好用
 提供 SQL 的一个子集
-- MongoDB (Document
+- MongoDB (Document)
 	- Key->BSON (Binary JSON)
 	- e.g.: create a new document (message), then append it to `user:{uid}.messages`
-- Cassandra (Colume)
+- Cassandra (Column)
 	- CQL (Table model)
 ### Vector Database
 > [!Note] **向量数据库**

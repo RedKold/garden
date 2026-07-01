@@ -12,6 +12,9 @@ gcc main.c -g
 	- 低级程序状态 (PC, register, memory)
 	- 高级程序状态 (栈帧，变量，代码行)
 
+![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260407094943.png)
+- Use `gcc -g dummy.c` 产生的二进制文件 `a.out`，用 `readelf` 发现其包含了很多额外的信息
+
 
 - Stack unwinding (backtrace)
 	- `backtrace`
@@ -119,6 +122,7 @@ C++的思想：用构造器和析构器分析来处理内存
 ### If you implement malloc?
 - 如果 n 足够大
 	- 直接用 mmap
+		- mmap: map the file or device into memory
 	- In PA we do it
 
 - 如果 n 不够大

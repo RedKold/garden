@@ -118,3 +118,9 @@ void T_sum(){
 	- 多个线程持有读锁，一个线程持有写锁
 - Segment/element-wise lock
 
+### 例子：Hash Table
+- `hash(key)` 将转化为数组下标
+- 在该位置存储对应的 value
+	- O (1) 插入、删除、查找
+	- per-bucket lock
+

@@ -99,3 +99,23 @@ as a Comparison
 
 
 
+## 小 TIP：如何安全地保存一个文件？给出系统调用顺序
+
+可以阅读 OSTEP for some tips (Chapter 39, directory and file)
+
+- `rename()` 通常是一个 atomic call
+- `fsync()` 可以强制写入磁盘
+所以可以
+
+
+```c
+	int fd = open("foo.txt.tmp", O_WORNLY|O_CREAT|O_TRUNC);
+	write(fd, buffer, size);	// write the new version
+	fsycn(fd);	// update
+	close(fd);
+	
+	// if above is done, we can rename it
+	rename("foo.txt.tmp", "foo.txt");
+```
+
+

@@ -136,3 +136,16 @@ struct exec {
 
 ### PLT: 没能解决数据的问题
 
+#### 数据不能像代码一样 “两级跳转”
+
+`extern int x; x = 1;`
+
+- 如果在同一个 .so: `mov $1, x(%rip)`
+- 如果在另一个 .so: `mov GOT[x], %rdi; mov $1, (%rdi)`
+    - main 访问 stdout: 高效
+    - libwheel. so 访问 stdout: 低效
+
+#### 不优雅的解决方法
+
+- -fPIC 默认会为所有 extern 数据增加一层间接访问
+    - 可以通过 **attribute**((visibility (“hidden”))) “告诉” 编译器
