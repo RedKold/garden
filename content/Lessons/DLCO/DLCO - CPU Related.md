@@ -149,18 +149,18 @@ Fetch instruction: `Instruction <- M[PC]`
 - **时钟周期的宽度以最复杂**阶段的所用的时间为准。
 
 **思考**：指令有几个阶段？
-1. fetch inst 
+1. fetch inst  `IF`
 	- read storage
 	- read inst due to pc. put it in `IR`
 	- IR will not be update at every clock. So it need a write-enable
 	- when fetch-inst ended, `alu` output is `PC+4`, send it to input of PC. But, you can't update `pc` at every clock. so pc need a write-enable
-2. decode / read register
+2. decode / read register `ID`
 	- after control-logic-delay, update control signal
 	- do read register, and decode
 	- `alu` is free at this period. You can use it 
-3. alu
-4.  read/write store
-5. write the result
+3. alu `EX`
+4.  read/write store `M`
+5. write the result back `WB`
 
 **多周期处理器的好处**
 - 时钟周期更短
@@ -217,12 +217,48 @@ Fetch instruction: `Instruction <- M[PC]`
 - 流水线数据通路
 ![Pipeline datapath.jpg|400](https://kold.oss-cn-shanghai.aliyuncs.com/Pipeline%20datapath.jpg)
 
-
+- **WB**主要是逆向数据通路，用于往寄存器回写数据。
+- 只要RegWr=1，产生逆向数据通路，就可能产生冒险！
 ### 流水线的三种冒险
 1. **数据冒险**：当指令在流水线中重叠执行时，后面的指令需要用到前面的指令的执行结果，而前面的指令尚未写回导致的冲突，称为数据冒险（也称为**数据相关性**）。
 2. **结构冒险**：当一条指令需要的硬件部件还在为之前的指令工作，而无法为这条指令提供服务，那就导致了结构冒险。（这里结构是指硬件当中的某个部件、也称为**资源冲突**）。
 3. **控制冒险**：如果现在想要执行哪条指令，是由之前指令的运行结果决定，而现在那条之前指令的结果还没产生，就导致了控制冒险（实际上就是 risc-v的跳转指令引起的，跳转指令要经过2个周期后才会出现**跳转结果**）
 具体的冒险可以看后面：[[#延迟]]
+
+##### 结构冒险  
+- 同一个部件可能被不同阶段同时使用，比如寄存器可能同时被 ID 读，被 WR 写  
+- 修改寄存器，实现**上半周期写，后半周期读**  
+- 内存也可能被同时使用（读取指令和数据），可以对**指令和数据划分区域**，使得互不干扰  
+##### 数据冒险  
+- 流水线执行时，前面指令执行完成之前后面指令就开始执行（比如后面的指令依赖 load 的结果，但是此时 load 还没完成 wr）  
+    - ![image.png|500](https://thdlrt.oss-cn-beijing.aliyuncs.com/20240101192049.png)  
+- 基本流水线只会遇到 RAW **写后读**问题  
+- 最小化冲突条数  
+    - 如上图最初会冲突 3 条  
+    - 使用上半周期写下半周期读能减少一条（Wr、ID 可以在同一阶段）  
+    - 转发技术：数据计算出来要早于存储，希望计算出来之后尽快使用结果，把数据从流水段寄存器中**直接取到 ALU 的输入端**  
+    - ![image.png](https://thdlrt.oss-cn-beijing.aliyuncs.com/20240101200437.png)  
+    - 途中给出了三种转发形式（将数据向前供 ex 使用），要注意的是 load 只有在 ME 之后才得到值，因此 load 无法做到完美转发，中间可能还是需要**等待一条指令**，称为 load-use  
+- 阻塞指令执行  
+    - 硬件阻塞  
+    - 软件插入 NOP  
+##### 控制冒险  
+- beq/jmp 等跳转指令造成的延迟，会在真正跳转执行在原先的 PC 继续错误执行几条指令  
+    - ![image.png|500](https://thdlrt.oss-cn-beijing.aliyuncs.com/20240101192256.png)  
+- 未优化之前需要等待三条指令，使用分支预测进行优化  
+- 静态预测  
+    - 总是简单的预测条件不满足，或者使用一些简单的启发式规则  
+    - 为了尽可能减少等待，将预测提前到 ID 阶段，如果预测失败也**只需要等待一个时钟周期**  
+- 动态预测  
+    - 利用**最近转移发生的情况**，来预测下一次可能转移还是不转移  
+    - 从 **BHT 表**中寻找，看这条分支指令以前是否执行过，如果没有则插入新的表项到 BHT **(默认设置为顺序取**)，如果找到了则直接使用预测表中的转移目标地址进行转移（预测发生时，选择“转移取“；预测不发生时，选择“顺序取”）  
+- 预测位  
+    - ![image.png|450](https://thdlrt.oss-cn-beijing.aliyuncs.com/20240101211516.png)  
+    - ![image.png|450](https://thdlrt.oss-cn-beijing.aliyuncs.com/20240101212036.png)  
+- JMP 指令会回造成**一个时钟周期的延迟**，即在第二个时钟周期跳转（不能放在第一个周期，不然耗时太长，拖慢总体上的时钟）  
+- 编译优化：延迟分支  
+    - 将与分支无关的指令转移到分支指令后面执行，填充延迟时间，不够用时再使用 nop 进行填充  
+    - ![image.png](https://thdlrt.oss-cn-beijing.aliyuncs.com/20240101212514.png)
 
 
 
@@ -230,15 +266,59 @@ Fetch instruction: `Instruction <- M[PC]`
 **流水线控制器的实现**
 - ID 段生成所有控制信号，并随指令执行过程信息同步向后续阶段流
 - 与单周期处理器的控制器的实现方法一样，无需采用有限状态机
-- 
 
 
 我们有一些流水线段寄存器，比如 `IF/ID`, `ID/EX`, `M/WB`, 来存储周期执行过程中的一些信息
+
+
 
 - `M/WB`
 	- ![image.png|600](https://kold.oss-cn-shanghai.aliyuncs.com/20251219104114.png)
 	- 
 
+
+
+#### 1. IF/ID 寄存器（取指/译码间）
+
+用于暂存从指令存储器中取出的原始数据，以便在下一周期进行解析。
+- **指令内容 (Instruction)**：从存储器中读出的 32 位机器码。 111
+- **PC+4**：当前指令的下一条地址，用于分支跳转计算或返回地址。 2
+
+#### 2. ID/EX 寄存器（译码/执行间）
+
+存放译码后产生的所有控制信号和操作数，为 ALU 运算做准备。
+
+- **操作数 (Read Data)**：从寄存器堆中读出的 $Rs$ 和 $Rt$ 寄存器的数值。 333
+    
+- **符号扩展后的立即数 (Immediate)**：经过位扩展后的 32 位立即数。 4444
+    
+- **控制信号**：如 $ALUOp$（运算类型）、$RegDst$（目标寄存器选择）等。 5
+    
+- **寄存器索引**：记录目标寄存器的编号（$Rt$ 或 $Rd$）。
+    
+
+#### 3. EX/MEM 寄存器（执行/访存间）
+
+存放运算结果和待写入存储器的数据。
+
+- **ALU 运算结果**：作为内存地址或直接作为计算结果。 6
+    
+- **零标志位 (Zero Flag)**：用于分支指令判断是否发生跳转。 7
+    
+- **待写内存数据**：原本在 $Rt$ 寄存器中的值（用于 $Store$ 指令）。
+    
+- **控制信号**：如 $MemRead$、$MemWrite$、$RegWrite$ 等。
+    
+
+#### 4. MEM/WB 寄存器（访存/回写间）
+存放最终准备写回寄存器堆的数据。
+- **内存读取结果 (Read Data)**：从数据存储器中读出的数据（针对 $Load$ 指令）。 888
+    
+- **ALU 结果**：非访存指令的计算结果。
+    
+- **目标寄存器编号**：确定数据最终写回到哪个寄存器。 9
+    
+- **控制信号**：$RegWrite$（写使能）和 $MemtoReg$（写回数据来源选择）。
 
 ### 流水线各个阶段
 
@@ -254,7 +334,7 @@ Fetch instruction: `Instruction <- M[PC]`
 - 第一条 `load` 指令在第 5 周期才能完成 `Write`，但这涉及到数据冒险（Data Hazard）
 - `load` 的延迟效应。中间要延迟三个周期，才能在下一个 `R-type` 指令到来时，其取数取到正确的值
 	- ![image.png|600](https://kold.oss-cn-shanghai.aliyuncs.com/20251219112041.png)
-[[DLCO-8#14|数据冒险习题]]
+[[DLCO-8 CPU#14|数据冒险习题]]
 
 
 - **转移指令的延迟**
@@ -264,7 +344,7 @@ Fetch instruction: `Instruction <- M[PC]`
 	- **取错了几个指令**！
 	- **分支延迟损失时间片**$C$
 		- 我们通常把由于流水线阻塞而带来的延迟执行周期称为 ***延迟损失时间片* $C$***
-	- 习题：[[DLCO-8#18 5 段流水线|控制冒险]]
+	- 习题：[[DLCO-8 CPU#18 5 段流水线|控制冒险]]
 
 #### 数据冒险的解决
 
@@ -274,7 +354,7 @@ Fetch instruction: `Instruction <- M[PC]`
 	- 同一周期内寄存器先写后读
 - **转发 (Forwarding** 或 **Bypassing 旁路)** 技术（不能解决所有的数据冒险）
 - 编译优化，调整指令顺序
-	- 编译优化思路可以看这个[[DLCO-8#17 调整序列-性能最优|调整指令序列-习题]]
+	- 编译优化思路可以看这个[[DLCO-8 CPU#17 调整序列-性能最优|调整指令序列-习题]]
 
 1. **硬件阻塞**：stall, 插入气泡
 	1. 比如：`add r1, r2, r3` -> `stall` -> `stall` -> `stall` -> `sub r4, r1, r3`
@@ -296,7 +376,7 @@ Fetch instruction: `Instruction <- M[PC]`
 		- 总预测条件不满足（not taken），即不跳转
 			- 可加启发式规则
 			- 在特定情况下总是预测满足 (taken)
-		- 预测失败时，需把流水线中三条错误预测指令（C=3）丢弃掉
+		- 预测失败时，需把**流水线中三条错误预测指令（C=3）丢弃掉**
 	- **预测**错误的检测和处理 (冲刷， -- Flush)
 		- **如果原来预测不转移**，
 		- 但是发现 Branch=1, 并且 Zero=1
@@ -304,6 +384,7 @@ Fetch instruction: `Instruction <- M[PC]`
 		- 此时需要完成以下两件事（延迟损失时间片 C=1 时）
 			1. 将转移目标地址->PC
 			2. 清除 IF 段取出的指令，即将 IF/ID 中的指令字清 0，转变为 NOP 指令
+		- 预测错误，需要停止之前做的。用气泡代替
 
 
 - ***动态预测的基本思想***
