@@ -1,17 +1,3 @@
----
-本科课程: ICS
-author: 231275036-朱晗
-date: 2026-02-15
----
-# 实验概况
-
-完成了 PA 4 的所有功能，可以在分时抢占 + 用户栈恢复的基础，通过时钟中断，分时运行仙剑奇侠传和内核进程 `hello_fun`。
-
-
-**我将实验中比较有趣的部分和遇到问题的部分摘录在下面**
-
-
-# 实验记录
 ## Some reference
 [Blog | Five EmbedDev](https://www.five-embeddev.com/)
 
@@ -170,7 +156,7 @@ Nanos-lite 是我们的轻量级操作系统。
 
 Nanos-lite 和 Navy 作约定：Nanos-lite 把栈顶位置设置到 `GPRx` 中，然后由 Navy 里面的 `_start` 来把栈顶位置真正设置到栈指针寄存器中。
 
- 目前我们让 Nanos-lite 把 `heap.end` 作为用户进程的栈顶, 然后把这个栈顶赋给用户进程的栈指针寄存器就可以了.
+ 目前我们让Nanos-lite把 `heap.end` 作为用户进程的栈顶, 然后把这个栈顶赋给用户进程的栈指针寄存器就可以了.
 > 目前用户栈的分配方式是直接将**堆区末尾的一部分作为用户栈。**
 
 `GPRx` 即返回值寄存器，`a0`
@@ -260,7 +246,7 @@ int main(int argc, char* argv[], char* envp[])；
 ![image.png|400](https://kold.oss-cn-shanghai.aliyuncs.com/20260108165646.png)
 
 
-但是一个个为应用程序设置参数，不显示。我们需要在 ` NTerm` 中提供解析参数支持，就和真正的 linux 程序一样。
+但是一个个为应用程序设置参数，不显示。我们需要在` NTerm` 中提供解析参数支持，就和真正的 linux 程序一样。
 
 很自然想到系统调用 `execve`。实际上它的原型就是
 ```c
@@ -337,7 +323,7 @@ typedef struct AddrSpace {
 我们还需要对 `ucontext` 函数进行修改。
 
 `vme_init` ：定义在 `abstract-machine/am/src/riscv/nemu/vme.c` 中，负责初始化 VME 环境。
-> `vme_init()` 会通过 `map()` 来填写内核虚拟地址空间的映射. 这些映射十分特殊, 它们的 `va` 和 `pa` 是相同的, 我们将它们称为"恒等映射" (identical mapping).——PA 手册
+> `vme_init()` 会通过 `map()` 来填写内核虚拟地址空间的映射. 这些映射十分特殊, 它们的 `va` 和 `pa` 是相同的, 我们将它们称为"恒等映射"(identical mapping).——PA 手册
 
 我们使用 `risc-v`，需要硬件对 *VME*进行处理。实际上 `vme.c` 中的 `set_satp` 就是一条 ASM inst
 
@@ -354,20 +340,20 @@ static inline void set_satp(void *pdir){
 注意及时 assertion！
 
 
-#### 实现 `isa_mmu_translate`
-参考手册 (4.3 Sv 32: Page-Based 32-bit Virtual-Memory Systems) 实现
+#### 实现`isa_mmu_translate`
+参考手册 (4.3 Sv32: Page-Based 32-bit Virtual-Memory Systems)实现
 ```
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type);
 ```
 
-对内存区间为 `[vaddr, vaddr + len)`, 类型为 `type` 的内存访问进行地址转换. 函数返回值可能为:
-- `pg_paddr` | `MEM_RET_OK`: 地址转换成功, 其中 `pg_paddr` 为物理页面的地址 (而不是 `vaddr` 翻译后的物理地址)
+对内存区间为`[vaddr, vaddr + len)`, 类型为`type`的内存访问进行地址转换. 函数返回值可能为:
+- `pg_paddr` | `MEM_RET_OK`: 地址转换成功, 其中`pg_paddr`为物理页面的地址(而不是`vaddr`翻译后的物理地址)
 - `MEM_RET_FAIL`: 地址转换失败, 原因包括权限检查失败等不可恢复的原因, 一般需要抛出异常
 - `MEM_RET_CROSS_PAGE`: 地址转换失败, 原因为访存请求跨越了页面的边界
 
-这个函数在 NEMU 层面实现翻译虚拟地址到物理地址页面地址。
+这个函数在NEMU层面实现翻译虚拟地址到物理地址页面地址。
 
-RV 32 在 `satp` 寄存器中存储 PPN
+RV32在 `satp` 寄存器中存储PPN
 
 我们对 `satp` 新增的定义在 `nemu/src/isa/riscv32/include/isa-def.h"` 中
 
@@ -375,7 +361,7 @@ RV 32 在 `satp` 寄存器中存储 PPN
 ```
 
 ```
-![[Pasted image 20260112220229.png]]
+![Pasted image 20260112220229|400](https://kold.oss-cn-shanghai.aliyuncs.com/Pasted%20image%2020260112220229.png)
 ```
 |	MODE		|	ASID		|	PPN		|
 |	1			|	9			|	22		|
@@ -410,9 +396,9 @@ VME 里的 map 定义在 abstract-machine 中，具体来说
 ```
 void map(AddrSpace *as, void *va, void *pa, int prot);
 ```
-它用于将地址空间 `as` 中虚拟地址 `va` 所在的虚拟页, 以 `prot` 的权限映射到 `pa` 所在的物理页. 当 `prot` 中的 present 位为 `0` 时, 表示让 `va` 的映射无效. 由于我们不打算实现保护机制, 因此权限 `prot` 暂不使用.
+它用于将地址空间 `as` 中虚拟地址 `va` 所在的虚拟页, 以 `prot` 的权限映射到 `pa` 所在的物理页. 当 `prot` 中的present位为 `0` 时, 表示让 `va` 的映射无效. 由于我们不打算实现保护机制, 因此权限 `prot` 暂不使用.
 
-`map()` 是 VME 中的核心 API, 它需要在虚拟地址空间 `as` 的页目录和页表中填写正确的内容, 使得将来在分页模式下访问一个虚拟页 (参数 `va`) 时, 硬件进行 page table walk 后得到的物理页, 正是之前在调用 `map()` 时给出的目标物理页 (参数 `pa`). 这再次体现了分页是一个软硬协同才能工作的机制: 如果 `map()` 没有正确地填写这些内容, 将来硬件进行 page table walk 的时候就无法取得正确的物理页.
+`map()` 是VME中的核心API, 它需要在虚拟地址空间 `as` 的页目录和页表中填写正确的内容, 使得将来在分页模式下访问一个虚拟页(参数 `va`)时, 硬件进行page table walk后得到的物理页, 正是之前在调用 `map()` 时给出的目标物理页(参数 `pa`). 这再次体现了分页是一个软硬协同才能工作的机制: 如果 `map()` 没有正确地填写这些内容, 将来硬件进行page table walk的时候就无法取得正确的物理页.
 
 
 ### 在分页机制下运行用户程序
@@ -574,7 +560,8 @@ void __am_get_cur_as(Context *c)
 但是我起初的代码没有加 `c->pdir!=NULL` 的检查，导致我对内核的 `c->pdir` 的 `NULL` 标记失效，从而错误的切换了地址空间
 
 之后又出现了 `Conflict Map` 问题，经检查又是老生常谈的 `mm_brk` 的重复映射。这次是因为我 `max_brk` 维护直接写得 `max_brk = brk(usr's parameter)` 但是 `navy-apps` 中通过 `sbrk(int increment)` 做 `SYS_brk` 的系统调用的时候，有时候是负值，这就导致我检查边界有问题的重复映射，修改为 `max_brk = max(max_brk, brk)` 解决了这个问题。现在用户程序和内核程序可以同时运行了。
-![[Pasted image 20260214004918.png]]
+![Pasted image 20260214004918|400](https://kold.oss-cn-shanghai.aliyuncs.com/Pasted%20image%2020260214004918.png)
+
 
 ## 来自外部的声音
 
@@ -587,6 +574,12 @@ void __am_get_cur_as(Context *c)
 
 在 RISC-V 中，**异常 (Exception)** 和 **中断 (Interrupt)** 对 `mepc` 的处理要求是不同的：
 
+1. **同步异常 (如 `ecall`)**：`mepc` 指向的是 `ecall` 指令本身。如果你不加 4，`mret` 返回后会再次执行 `ecall`，陷入死循环。所以 `yield` 和 `syscall` 必须 `+4`。
+    
+2. **外部中断 (如 `timer interrupt`)**：`mepc` 指向的是**被中断打断的那条指令**。这条指令还没有被执行完（或者还没开始执行）。处理完中断后，你应该原封不动地返回到这条指令。**如果你在这里 `+4`，你就跳过了用户程序的一条指令。**
+3. 
+![Pasted image 20260215012336|400](https://kold.oss-cn-shanghai.aliyuncs.com/Pasted%20image%2020260215012336.png)
+
 这是一个 PA 3 留下的坑：即 RISC-V 在何种时机更新 `PC`? 在 [[ICS-PA3 note#系统调用（Nano-lite 层）]] 我们曾经提到过：要在正确的地方做出更新 `mepc`, 当时我只是简单的在 ` am/src/riscv/nemu/cte.c : __am_irq_handle ` 的最前面做出更新
 
 但是，当我们引入 **外部中断** 之后，事情变得不一样：外部中断并不是靠一条 `ecall` 指令来完成自陷 (trap) 的，所以不需要跳过这一条指令（还记得 PA 3，你没有跳过指令，然后 yield-test 会一直循环打印吗？）。
@@ -596,10 +589,10 @@ void __am_get_cur_as(Context *c)
 ### 用户栈切换
 而为了实现上述功能, 我们又需要解决如下问题:
 
-- 如何识别进入 CTE 之前处于用户态还是内核态? - `pp` (Previous Privilege)
-- CTE 的代码如何知道内核栈在什么位置? - `ksp` (Kernel Stack Pointer)
+- 如何识别进入CTE之前处于用户态还是内核态? - `pp` (Previous Privilege)
+- CTE的代码如何知道内核栈在什么位置? - `ksp` (Kernel Stack Pointer)
 - 如何知道将要返回的是用户态还是内核态? - `np` (Next Privilege)
-- CTE 的代码如何知道用户栈在什么位置? - `usp` (User Stack Pointer)
+- CTE的代码如何知道用户栈在什么位置? - `usp` (User Stack Pointer)
 ```
 void __am_asm_trap() {
   if (ksp != 0) {   // ksp is global
@@ -631,17 +624,12 @@ void __am_asm_trap() {
 - `sp` 映射为 `gpr[sp]`
 
 由于 `ksp` 总是在 `pp == USER` 的时候被使用，且 `ksp` 的值肯定不为 0，所以可以用 `ksp == 0` 表示 `pp == KERNEL`
-- 若当前位于用户态, 则 `ksp` 的值为内核栈的栈底
-- 若当前位于内核态, 则 `ksp` 的值为 `0`
+- 若当前位于用户态, 则`ksp`的值为内核栈的栈底
+- 若当前位于内核态, 则`ksp`的值为`0`
 
 根据伪代码修改 `trap.S` 即可
 
-# 必答题
 
-## 分时多任务系统的具体过程
-
-> [!Question] 分时多任务系统的具体过程
-> 请结合代码, 解释分页机制和硬件中断是如何支撑仙剑奇侠传和hello程序在我们的计算机系统(Nanos-lite, AM, NEMU)中分时运行的.
-
-
-> 
+| <br>                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Storing a PPN in `satp`, rather than a physical address, supports a physical address space larger than 4 GiB for RV32.<br><br>The `satp`.PPN field might not be capable of holding all physical page numbers. Some platform standards might place constraints on the values `satp`.PPN may assume, e.g., by requiring that all physical page numbers corresponding to main memory be representable. |

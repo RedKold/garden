@@ -354,7 +354,7 @@ INSTPAT("0000000 00000 00000 000 00000 11100 11",   ecall,   I,
 ---
 - 调用 `ecall` 中断 (`NEMU` 层处理)
 	- 完成上述准备后，我们在 `AM` 层调用了 `yield()`，这个函数实际是汇编的，其将异常号 `mcause` 装入 `a7` 寄存器，接着执行 `ecall`
-	- `NEMU` 层将异常号写入 `csr`，记录异常 pc，并跳转到 `mtvec` (machine trap-vector base-address register)处
+	- `NEMU` 层将异常号写入 `csr`，记录**异常 pc**，并跳转到 `mtvec` (machine trap-vector base-address register)处
 	- 跳转到 `mtvec` 即设置好的 `trap` 处。
 ---
 - **中断处理**
@@ -365,7 +365,9 @@ INSTPAT("0000000 00000 00000 000 00000 11100 11",   ecall,   I,
 		- 我们约定 `-1` 是 `yield`，可以从 `yield` 函数的 `li` 指令了解到。
 			- `case -1: ev.event = EVENT_YIELD; break;`
 		- 对于本测试来说，我们绑定的回调函数是 `simple_trap`，其会根据我们的 `EVENT` 类型输出字符，这里是 `y`
-	- 恢复现场。
+	- *恢复现场*。
+		- PC 设置为 ecall 指令的下一条指令~~你也不想循环 ecall 吧~~
+
 
 
 ## Nano-lite

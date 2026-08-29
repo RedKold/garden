@@ -1063,4 +1063,4 @@ $$W = (R\hat{\beta} - r)' [R \cdot \widehat{Var}(\hat{\beta}) \cdot R']^{-1} (R\
 VaR
 
 
-[[FE-test]]
+[[FE-Exam]]

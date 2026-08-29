@@ -164,6 +164,8 @@ struct Context {
 - 我们需要所有寄存器的值，包括 `gpr` 和 `csrs` 的值
 - 这就是 `Context` 的内容
 
+`void *pdir` 是一级页表的物理地址
+
 Event 的内容
 ```c
 // An event of type @event, caused by @cause of pointer @ref
