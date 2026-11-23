@@ -8,3 +8,5 @@
 - 阅读实现代码，Megatron-LM
 - Lean 4, MCTS
 	- Alpha Go 的论文
+
+- [[NCCL]]

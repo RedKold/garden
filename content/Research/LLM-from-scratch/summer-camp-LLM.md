@@ -16,8 +16,18 @@ This ends the installation.
 挂载到 docker 中运行：
 ```bash
 cd ~/summer-camp/assignments/a0-RedKold
-docker run --gpus all -it --rm -v $(pwd):/workspace nvcr.io/nvidia/pytorch:26.06-py3
+docker run --gpus all -it --rm -v $(pwd):/workspace my-torch-env:v1
 ```
 
 
 - [[Pytorch]]
+
+
+- [[deep-engine-a1-matmul]]
+
+- [[deep-engine-a3-modeling-mlp]]
+
+
+- [[deep-engine-a4-attention-module]]
+
+- [[deep-engine-a5-transformer-block]]
